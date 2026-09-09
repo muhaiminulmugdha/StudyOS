@@ -6,10 +6,10 @@
   <title>StudyOS</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col lg:flex-row">
 
   <!-- Sidebar: Courses -->
-  <aside class="w-80 bg-slate-900 border-r border-slate-800 p-6 flex flex-col justify-between">
+  <aside class="w-full lg:w-80 bg-slate-900 border-b lg:border-r lg:border-b-0 border-slate-800 p-6 flex flex-col justify-between">
     <div>
       <div class="flex items-center gap-3 mb-8">
         <div class="bg-indigo-600 p-2 rounded-lg font-bold text-lg">SOS</div>
@@ -49,7 +49,7 @@
   </aside>
 
   <!-- Main Content Area -->
-  <main class="flex-1 p-10 overflow-y-auto">
+  <main class="flex-1 p-4 md:p-10 overflow-y-auto">
     <% if (activeCourse) { %>
       <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-slate-800">
         <!-- Edit Course Form (Inline) -->
