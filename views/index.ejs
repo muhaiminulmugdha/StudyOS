@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyOS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex">
+
+  <!-- Sidebar: Courses -->
+  <aside class="w-80 bg-slate-900 border-r border-slate-800 p-6 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-8">
+        <div class="bg-indigo-600 p-2 rounded-lg font-bold text-lg">SOS</div>
+        <h1 class="text-xl font-bold tracking-wide">StudyOS</h1>
+      </div>
+
+      <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Your Courses</h2>
+      
+      <nav class="space-y-2 mb-8">
+        <% if (courses && courses.length > 0) { %>
+          <% courses.forEach(course => { %>
+            <a href="/?courseId=<%= course.id %>" 
+               class="flex items-center justify-between p-3 rounded-lg transition <%= activeCourse && activeCourse.id === course.id ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-300' %>">
+              <span class="font-medium"><%= course.code %></span>
+              <span class="text-xs opacity-75 truncate max-w-[120px]"><%= course.name %></span>
+            </a>
+          <% }) %>
+        <% } else { %>
+          <p class="text-sm text-slate-500 italic">No courses added yet.</p>
+        <% } %>
+      </nav>
+
+      <!-- Add Course Form -->
+      <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Add New Course</h3>
+        <form action="/courses" method="POST" class="space-y-3">
+          <input type="text" name="code" placeholder="Code (e.g. CS220)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <input type="text" name="name" placeholder="Name (e.g. Discrete Math)" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-sm transition">Add Course</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="text-xs text-slate-500 text-center mt-6">
+      StudyOS v1.0 &bull; MVC Architecture
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 p-10 overflow-y-auto">
+    <% if (activeCourse) { %>
+      <header class="flex justify-between items-center mb-8 pb-6 border-b border-slate-800">
+        <div>
+          <span class="text-indigo-400 font-semibold tracking-wide text-sm uppercase"><%= activeCourse.code %></span>
+          <h2 class="text-3xl font-bold mt-1"><%= activeCourse.name %></h2>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <!-- Left 2 Cols: Lectures List -->
+        <div class="xl:col-span-2 space-y-6">
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <span>Lecture Logs</span>
+            <span class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400"><%= lectures.length %></span>
+          </h3>
+
+          <% if (lectures && lectures.length > 0) { %>
+            <% lectures.forEach(lecture => { %>
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-xs text-indigo-400 font-medium"><%= lecture.date %></span>
+                    <h4 class="text-xl font-semibold mt-0.5"><%= lecture.topic %></h4>
+                  </div>
+                  <% if (lecture.covered) { %>
+                    <span class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full border border-emerald-500/20 font-medium">Covered: <%= lecture.covered %></span>
+                  <% } %>
+                </div>
+
+                <% if (lecture.notes && lecture.notes.length > 0) { %>
+                  <div>
+                    <h5 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Key Notes</h5>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-300">
+                      <% lecture.notes.forEach(note => { %>
+                        <li><%= note %></li>
+                      <% }) %>
+                    </ul>
+                  </div>
+                <% } %>
+
+                <% if (lecture.review && lecture.review.length > 0) { %>
+                  <div class="pt-3 border-t border-slate-800/60">
+                    <h5 class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">Review / To-Do</h5>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-slate-300">
+                      <% lecture.review.forEach(item => { %>
+                        <li><%= item %></li>
+                      <% }) %>
+                    </ul>
+                  </div>
+                <% } %>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-8 text-center text-slate-500">
+              No lectures logged for this course yet. Use the form on the right to add your first entry!
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Right Col: Add Lecture Form -->
+        <div>
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 sticky top-10">
+            <h3 class="text-base font-semibold mb-4">Log New Lecture</h3>
+            <form action="/courses/<%= activeCourse.id %>/lectures" method="POST" class="space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Date</label>
+                <input type="text" name="date" placeholder="e.g. Oct 24" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Topic</label>
+                <input type="text" name="topic" placeholder="e.g. Matrix Multiplications" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Coverage / Sections</label>
+                <input type="text" name="covered" placeholder="e.g. Chapter 3.2" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Key Notes (One per line)</label>
+                <textarea name="notes" rows="3" placeholder="Point 1&#10;Point 2" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1">Review Items (One per line)</label>
+                <textarea name="review" rows="2" placeholder="Review theorem 4&#10;Practice problems" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+              </div>
+
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-sm transition">Save Lecture</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-3">
+        <h2 class="text-2xl font-bold text-slate-300">Welcome to StudyOS</h2>
+        <p class="max-w-md text-sm">Get started by creating your first course using the sidebar on the left.</p>
+      </div>
+    <% } %>
+  </main>
+
+</body>
+</html>
