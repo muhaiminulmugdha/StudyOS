@@ -1,3 +1,4 @@
 node_modules/
+database.js
 study.db
 .DS_Store
